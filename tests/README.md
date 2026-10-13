@@ -1,10 +1,11 @@
 # Mobile browser tests
 
-These tests reproduce the mobile checks for Jairo Ipial’s blog using Playwright and Chromium. They run each scenario at **320×844** and **390×844**, with touch and mobile emulation enabled: **12 test cases** in total.
+These tests reproduce the mobile checks for Jairo Ipial’s blog using Playwright and Chromium. They run each scenario at **320×844** and **390×844**, with touch and mobile emulation enabled: **26 test cases** in total.
 
 ## Files
 
-- `mobile.spec.ts`: assertions and an explicit summary above each scenario.
+- `mobile.spec.ts`: original mobile layout and interaction checks, with an explicit summary above each scenario.
+- `site-features.spec.ts`: RSS, custom 404, sharing metadata, archived content, and mobile table spacing checks, each with an explicit summary.
 - `playwright.config.ts`: viewport sizes, server address, screenshots, traces, and report settings.
 - `artifacts/`: screenshots and failure traces generated during tests (ignored by Git).
 - `report/`: HTML results with attached screenshots (ignored by Git).
@@ -21,6 +22,20 @@ These tests reproduce the mobile checks for Jairo Ipial’s blog using Playwrigh
 | Tables and code | Every block fits within the viewport; overflowing blocks permit horizontal scrolling and their scroll position changes | Each table and one wide code block |
 
 The tests allow one pixel of rounding tolerance for viewport bounds. Back-to-top checks allow two pixels. Their target is the start of `<main>`, below the header, rather than the document’s absolute top.
+
+The additional scenarios in `site-features.spec.ts` run at both viewport widths:
+
+| Scenario | Checks |
+| --- | --- |
+| RSS | Footer link on five pages, 44px touch target, valid XML, configured feed identity, current article metadata, no archived posts |
+| Custom 404 | HTTP 404, recovery message, noindex, no page overflow, working Home/Blog buttons, screenshot |
+| Sharing metadata | Article title and description match frontmatter; Open Graph uses article artwork; homepage uses branded fallback; both image URLs respond successfully |
+| Archived content | Real article remains in listings; archived post links are absent; removed posts and unused tags return HTTP 404 |
+| About presentation | Personal heading, loaded image, CV link, no publication date or article tags, mobile overflow check and screenshot |
+| Publication dates | Visible labels match the UTC calendar day in datetime attributes across homepage, blog, tag archive, and article |
+| Table readability | Minimum column width and cell padding; wide tables scroll locally without document overflow |
+
+These checks work against the existing development server. For the 404 assertions to pass against a production server, configure it to serve the generated `404.html` with HTTP status 404 for unknown URLs. Social metadata checks do not verify third-party preview caches or public-domain reachability. Frontmatter extraction expects the fixture article’s title and description to use double-quoted single-line values.
 
 ## 1. Install project dependencies
 
@@ -144,7 +159,7 @@ In PowerShell, set `TEST_BASE_URL` as shown in step 4. Stop the foreground previ
 
 ### All tests fail with “Executable doesn't exist”
 
-If all 12 tests fail immediately with `browserType.launch: Executable doesn't exist`, Chromium is missing from the browser cache. The website checks have not run yet; this is a browser setup failure rather than a failed layout assertion.
+If all tests fail immediately with `browserType.launch: Executable doesn't exist`, Chromium is missing from the browser cache. The website checks have not run yet; this is a browser setup failure rather than a failed layout assertion.
 
 Installing `@playwright/test` installs the testing library, but the browser needs a separate installation. Earlier checks performed with a browser under `/tmp` do not populate the default cache at `~/.cache/ms-playwright` on Linux/WSL.
 
@@ -175,3 +190,53 @@ If the server is stopped, start it with `npm run dev -- --background --port 4321
 - **Failed assertions:** inspect the HTML report, failure screenshots, and retained traces before changing expectations.
 
 Passing tests verify the stated layout and interaction rules. They are not pixel-baseline comparisons, a full accessibility audit, performance tests, or checks on physical phones, Safari, or Firefox. Screenshot review is still necessary. Test artifacts may include content from the target site; avoid committing or publicly sharing them without review.
+
+## Browser runtime coverage
+
+The feature coverage is implemented in `site-features.spec.ts`; its test summaries describe RSS, 404, sharing metadata, archived content, and table readability assertions. The separate `coverage.mjs` script measures which browser assets execute during representative interactions.
+
+With project dependencies and Chromium installed, start the blog as described above and run:
+
+```bash
+npm run test:coverage
+```
+
+The script visits Home, CV, and the RunPod article at both mobile widths. It exercises header navigation, RSS subscription, CV back-to-top links, article tags, and horizontal table/code scrolling. It generates:
+
+- `tests/coverage/report.md`: readable per-resource report.
+- `tests/coverage/summary.json`: machine-readable scenario summaries.
+- `tests/coverage/<page>-<width>.json`: raw Chromium JavaScript and CSS coverage for inspection.
+
+JavaScript coverage reports executed functions versus collected functions. CSS coverage reports used character ranges (Chromium's byte offsets) as a percentage of each stylesheet. Results are per scenario and resource, not merged source-line coverage. Development tools, desktop styles, and print styles affect the totals. No arbitrary coverage threshold is enforced. This does **not** measure server-side Astro frontmatter or TypeScript source lines and does not replace the assertion-based tests.
+
+For a cleaner report, run against the production preview using `TEST_BASE_URL` as explained above. The same variable works for coverage:
+
+```bash
+TEST_BASE_URL=http://localhost:4323 npm run test:coverage
+```
+
+Generated coverage files are ignored by Git. Installing the browser under a custom path requires the same `PLAYWRIGHT_BROWSERS_PATH` when running tests and coverage.
+
+## Static code analysis
+
+Dependencies `@astrojs/check` and `typescript` are installed through the project’s `npm install`/`npm ci` setup. Static analysis does not require a running server or Chromium.
+
+Run Astro component/template diagnostics and TypeScript checks:
+
+```bash
+npm run check
+npm run check:types
+```
+
+- `check` runs `astro check`, generates Astro content types, and checks `.astro` files for syntax and type problems.
+- `check:types` runs `tsc --noEmit` against `tsconfig.json`, checking TypeScript utilities, test files, and configuration without generating JavaScript.
+
+Both commands must finish with exit code 0. Errors include file paths and line numbers to help locate the problem. Astro hints/warnings are reported separately; review them even when the exit code succeeds. These commands are type analysis, not a formatting linter, vulnerability scanner, or runtime test suite. JavaScript files are not fully type-checked unless `checkJs` is enabled; browser coverage scripts are validated by running them.
+
+To run static analysis followed by all 22 browser tests:
+
+```bash
+npm run validate
+```
+
+Start the blog before `validate`; it does not manage the server. Coverage is an additional report and runs separately with `npm run test:coverage`. Run `npm run build` separately before publishing to verify production generation.

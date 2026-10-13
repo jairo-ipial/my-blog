@@ -26,3 +26,6 @@ pnpm-debug.log*
 # Browser test output
 tests/artifacts/
 tests/report/
+
+# Browser runtime coverage
+tests/coverage/

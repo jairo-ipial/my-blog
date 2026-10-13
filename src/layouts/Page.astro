@@ -1,0 +1,36 @@
+---
+import { Image } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+import BaseHead from '../components/BaseHead.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+
+interface Props {
+  title: string;
+  description: string;
+  heroImage?: ImageMetadata;
+  imageAlt?: string;
+}
+const { title, description, heroImage, imageAlt = '' } = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+  <head><BaseHead title={title} description={description} image={heroImage} /></head>
+  <body>
+    <Header />
+    <main>
+      <h1>{title}</h1>
+      {heroImage && <Image class="page-image" src={heroImage} alt={imageAlt} width={720} />}
+      <div class="prose"><slot /></div>
+    </main>
+    <Footer />
+  </body>
+</html>
+
+<style>
+  h1 { font-size: clamp(2.2rem, 7vw, 3.6rem); letter-spacing: -.035em; margin-bottom: 28px; }
+  .page-image { display: block; width: 100%; height: auto; margin-bottom: 36px; border-radius: 12px; }
+  .prose :global(h2) { font-size: clamp(1.5rem, 5vw, 2rem); margin-top: 32px; }
+  .prose :global(p:first-of-type) { margin-top: 0; }
+</style>

@@ -11,7 +11,11 @@
     "preview": "astro preview",
     "astro": "astro",
     "test:mobile": "playwright test --config tests/playwright.config.ts",
-    "test:mobile:report": "playwright show-report tests/report"
+    "test:mobile:report": "playwright show-report tests/report",
+    "check": "astro check",
+    "check:types": "tsc --noEmit",
+    "test:coverage": "node tests/coverage.mjs",
+    "validate": "npm run check && npm run check:types && npm run test:mobile"
   },
   "dependencies": {
     "@astrojs/mdx": "^8.0.3",
@@ -21,6 +25,8 @@
     "sharp": "^0.35.0"
   },
   "devDependencies": {
-    "@playwright/test": "^1.64.0"
+    "@astrojs/check": "^0.9.10",
+    "@playwright/test": "^1.64.0",
+    "typescript": "^6.0.3"
   }
 }
