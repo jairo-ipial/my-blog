@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <title>Jairo Ipial — JI</title>
+  <rect width="128" height="128" rx="24" fill="#0f172a" />
+  <g fill="#c7d2fe">
+    <path d="M28 30h42v48c0 18-10 28-26 28S18 96 18 80h16c0 8 3 12 10 12s10-4 10-14V46H28Z" />
+    <path d="M80 30h30v16h-7v42h7v16H80V88h7V46h-7Z" />
+  </g>
+</svg>

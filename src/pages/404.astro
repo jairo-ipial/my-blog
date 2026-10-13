@@ -1,0 +1,34 @@
+---
+import BaseHead from '../components/BaseHead.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import { SITE_TITLE } from '../consts';
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <BaseHead title={`Page not found | ${SITE_TITLE}`} description="This page could not be found. Explore Jairo Ipial’s engineering notes or return to the homepage." />
+    <meta name="robots" content="noindex" />
+  </head>
+  <body>
+    <Header />
+    <main>
+      <p class="error-code">404</p>
+      <h1>That page took a wrong turn.</h1>
+      <p>The link may be outdated, or the page may have moved. You can return home or explore my engineering notes.</p>
+      <nav class="actions" aria-label="Find your way back">
+        <a class="button" href="/">Back to Home</a>
+        <a class="button button--secondary" href="/blog/">Explore the Blog</a>
+      </nav>
+    </main>
+    <Footer />
+  </body>
+</html>
+
+<style>
+  main { padding-top: clamp(48px, 10vw, 96px); padding-bottom: clamp(48px, 10vw, 96px); }
+  .error-code { margin: 0 0 16px; color: var(--accent); font-size: 1.2rem; font-weight: 700; letter-spacing: .12em; }
+  h1 { font-size: clamp(2rem, 7vw, 3.5rem); }
+  .actions { display: flex; flex-wrap: wrap; gap: 16px; margin-top: 28px; }
+</style>

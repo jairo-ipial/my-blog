@@ -1,0 +1,16 @@
+---
+import { tagHref, tagSlug } from '../utils/tags';
+interface Props { tags?: string[]; }
+const { tags = [] } = Astro.props;
+const uniqueTags = [...new Map(tags.map((tag) => [tagSlug(tag), tag])).values()];
+---
+{uniqueTags.length > 0 && (
+  <nav class="tags" aria-label="Article tags">
+    {uniqueTags.map((tag) => <a href={tagHref(tag)}>{tag}</a>)}
+  </nav>
+)}
+<style>
+  .tags { display: flex; flex-wrap: wrap; gap: 8px; margin: 16px 0; }
+  a { display: inline-flex; align-items: center; box-sizing: border-box; min-height: 44px; max-width: 100%; overflow-wrap: anywhere; padding: 8px 12px; border: 1px solid rgb(var(--gray-light)); border-radius: 999px; font-size: .8rem; line-height: 1.5; text-decoration: none; background: var(--surface); }
+  a:hover { border-color: var(--accent); }
+</style>
