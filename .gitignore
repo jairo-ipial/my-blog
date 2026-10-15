@@ -29,3 +29,8 @@ tests/report/
 
 # Browser runtime coverage
 tests/coverage/
+
+# Cloudflare local state and secrets
+.wrangler/
+.dev.vars
+.dev.vars.*

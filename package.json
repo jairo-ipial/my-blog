@@ -15,7 +15,9 @@
     "check": "astro check",
     "check:types": "tsc --noEmit",
     "test:coverage": "node tests/coverage.mjs",
-    "validate": "npm run check && npm run check:types && npm run test:mobile"
+    "validate": "npm run check && npm run check:types && npm run test:mobile",
+    "deploy": "npm run build && wrangler deploy",
+    "deploy:check": "npm run build && wrangler deploy --dry-run"
   },
   "dependencies": {
     "@astrojs/mdx": "^8.0.3",
@@ -27,6 +29,7 @@
   "devDependencies": {
     "@astrojs/check": "^0.9.10",
     "@playwright/test": "^1.64.0",
-    "typescript": "^6.0.3"
+    "typescript": "^6.0.3",
+    "wrangler": "^4.151.0"
   }
 }
