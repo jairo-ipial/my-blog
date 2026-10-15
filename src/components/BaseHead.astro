@@ -1,4 +1,7 @@
 ---
+import { localeFromPath, translatedPaths } from '../i18n/utils';
+const locale = localeFromPath(Astro.url.pathname);
+const alternatives = translatedPaths(Astro.url.pathname);
 // Import the global.css file here so that it is included on
 // all pages through the use of the <BaseHead /> component.
 import '../styles/global.css';
@@ -11,11 +14,39 @@ interface Props {
 	title: string;
 	description: string;
 	image?: ImageMetadata;
+	article?: { published: Date; modified?: Date; tags?: string[] };
+	profile?: boolean;
 }
 
-const canonicalURL = new URL(Astro.url.pathname, Astro.site);
+// Directory pages share one canonical URL, with or without a slash in the request.
+const canonicalPath = Astro.url.pathname.endsWith('/') || /\.[^/]+$/.test(Astro.url.pathname)
+	? Astro.url.pathname
+	: `${Astro.url.pathname}/`;
+const canonicalURL = new URL(canonicalPath, Astro.site);
 
-const { title, description, image = FallbackImage } = Astro.props;
+const { title, description, image = FallbackImage, article, profile = false } = Astro.props;
+const imageURL = new URL(image.src, Astro.site);
+const person = {
+	'@type': 'Person',
+	'@id': new URL('/about/#person', Astro.site).href,
+	name: SITE_TITLE,
+	url: new URL('/about/', Astro.site).href,
+	jobTitle: 'Software engineer and technical leader',
+};
+const structuredData = article ? {
+	'@context': 'https://schema.org',
+	'@type': 'BlogPosting',
+	headline: title,
+	description,
+	url: canonicalURL.href,
+	mainEntityOfPage: canonicalURL.href,
+	image: imageURL.href,
+	datePublished: article.published.toISOString(),
+	dateModified: (article.modified ?? article.published).toISOString(),
+	author: person,
+	keywords: article.tags,
+	inLanguage: 'en',
+} : profile ? { '@context': 'https://schema.org', ...person } : undefined;
 ---
 
 <!-- Global Metadata -->
@@ -36,17 +67,37 @@ const { title, description, image = FallbackImage } = Astro.props;
 
 <!-- Canonical URL -->
 <link rel="canonical" href={canonicalURL} />
+{alternatives && <>
+	<link rel="alternate" hreflang="en" href={new URL(alternatives.en, Astro.site)} />
+	<link rel="alternate" hreflang="es" href={new URL(alternatives.es, Astro.site)} />
+	<link rel="alternate" hreflang="x-default" href={new URL(alternatives.en, Astro.site)} />
+</>}
+<meta property="og:locale" content={locale === 'es' ? 'es_CO' : 'en_US'} />
+{alternatives && <meta property="og:locale:alternate" content={locale === 'es' ? 'en_US' : 'es_CO'} />}
 
 <!-- Primary Meta Tags -->
 <title>{title}</title>
 <meta name="description" content={description} />
 
 <!-- Open Graph / Facebook -->
-<meta property="og:type" content="website" />
-<meta property="og:url" content={Astro.url} />
+<meta property="og:type" content={article ? 'article' : 'website'} />
+<meta property="og:url" content={canonicalURL} />
 <meta property="og:title" content={title} />
 <meta property="og:description" content={description} />
-<meta property="og:image" content={new URL(image.src, Astro.url)} />
+<meta property="og:image" content={imageURL} />
 
 <!-- Twitter -->
 <meta name="twitter:card" content="summary_large_image" />
+
+<meta property="og:site_name" content={SITE_TITLE} />
+<meta property="og:image:width" content={String(image.width)} />
+<meta property="og:image:height" content={String(image.height)} />
+<meta name="twitter:title" content={title} />
+<meta name="twitter:description" content={description} />
+<meta name="twitter:image" content={imageURL} />
+{article && <>
+	<meta property="article:published_time" content={article.published.toISOString()} />
+	<meta property="article:modified_time" content={(article.modified ?? article.published).toISOString()} />
+	{article.tags?.map(tag => <meta property="article:tag" content={tag} />)}
+</>}
+{structuredData && <script type="application/ld+json" set:html={JSON.stringify(structuredData).replace(/</g, '\\u003c')} />}

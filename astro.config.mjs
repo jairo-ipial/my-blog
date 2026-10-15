@@ -6,7 +6,14 @@ import { defineConfig, fontProviders } from 'astro/config';
 
 // https://astro.build/config
 export default defineConfig({
-	site: 'https://jairo-ipial.duckdns.org/',
+	// Set SITE_URL in the build environment when using another production domain.
+	site: process.env.SITE_URL || 'https://blog.jairo-ipial.workers.dev/',
+	trailingSlash: 'ignore',
+	i18n: {
+		defaultLocale: 'en',
+		locales: ['en', 'es'],
+		routing: { prefixDefaultLocale: false },
+	},
 	integrations: [mdx(), sitemap()],
 	markdown: {
 		shikiConfig: {
