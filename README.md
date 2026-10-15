@@ -39,17 +39,23 @@ Blog posts live in `src/content/blog/`. Longer articles use Markdown headings an
 
 The CV page lives at `/cv`.
 
-## Deployment strategy
+## Deployment
 
-Follow the [Oracle VM and Podman deployment guide](deploy/oracle/README.md) for account setup, networking, HTTPS, publishing, and rollback. Deployment configuration lives in `deploy/`.
+The site is hosted on **Cloudflare Workers Static Assets** at https://blog.jairo-ipial.workers.dev/.
 
-The planned deployment uses an **Oracle Cloud Always Free eligible VM** with a **Podman-managed static web server**.
+Follow the [Cloudflare deployment guide](deploy/cloudflare/README.md) for authentication, validation, publishing, and Google Search Console setup.
 
-Astro builds run locally in WSL. Publishing uploads the generated site as a batch, without rebuilding or uploading the web-server container image for content changes. Releases will be activated after validation, with the previous version retained for rollback.
+```bash
+npx wrangler login
+npm run check
+npm run check:types
+npm run deploy:check
+npm run deploy
+```
 
-A free DuckDNS subdomain is planned for the public address, with Caddy providing automatic HTTPS.
+`npm run deploy` builds the Astro site into `dist/` and publishes it using Wrangler. Configuration lives in `wrangler.jsonc`. The production URL in `astro.config.mjs` supplies canonical links, social previews, RSS, and sitemap URLs.
 
-The goal is to keep recurring hosting costs at **$0**, within provider limits. Because free compute availability is not guaranteed, source content and recovery assets will remain backed up independently of Oracle.
+English pages use the existing routes; Spanish Home, About, and CV pages live under `/es/`. Blog content remains in English.
 
 ## Contact
 

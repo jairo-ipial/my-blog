@@ -1,6 +1,6 @@
 # SEO publishing workflow
 
-The production address is https://blog.jairo-ipial.workers.dev/. Astro’s `site` is the source for canonical URLs, social images, RSS, sitemap, and robots.txt. Override `SITE_URL` at build time only when changing the public domain, then rebuild. The Oracle deployment guide describes an alternate deployment and its DuckDNS hostname is not the canonical address for this Cloudflare build.
+The production address is https://blog.jairo-ipial.workers.dev/. Astro’s `site` is the source for canonical URLs, social images, RSS, sitemap, and robots.txt. Override `SITE_URL` at build time only when changing the public domain, then rebuild.
 
 ## Before publishing
 
