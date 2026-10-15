@@ -44,6 +44,8 @@ test('language preference survives visiting blog pages and can change there', as
   const spanish = page.locator('header').getByRole('link', { name: 'Español', exact: true });
   await expect(spanish).toBeVisible();
   await expect(spanish).toHaveAttribute('aria-current', 'true');
+  await expect(spanish).toHaveCSS('font-weight', '700');
+  await expect(spanish).toHaveCSS('text-decoration-line', 'underline');
   await expect(page.locator('header').getByRole('link', { name: 'Sobre mí', exact: true })).toHaveAttribute('href', '/es/about/');
   await page.locator('main a[href="/blog/configure-runpod-instance/"]').click();
   await expect(spanish).toHaveAttribute('aria-current', 'true');
@@ -54,6 +56,8 @@ test('language preference survives visiting blog pages and can change there', as
   await expect(page).toHaveURL(/\/blog\/$/);
   await page.reload();
   await expect(page.locator('header').getByRole('link', { name: 'English', exact: true })).toHaveAttribute('aria-current', 'true');
+  await expect(page.locator('header').getByRole('link', { name: 'English', exact: true })).toHaveCSS('text-decoration-line', 'underline');
+  await expect(spanish).not.toHaveAttribute('aria-current', 'true');
   await page.locator('header').getByRole('link', { name: 'About', exact: true }).click();
   await expect(page).toHaveURL(/(?<!\/es)\/about\/$/);
 });

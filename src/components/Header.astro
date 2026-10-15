@@ -19,8 +19,8 @@ import HeaderLink from './HeaderLink.astro';
 			<HeaderLink data-localized-path="/cv/" href={localizedPath("/cv/", locale)}>CV</HeaderLink>
 		</div>
 		<div class="language-links" role="group" aria-label={locale === 'es' ? 'Idioma' : 'Language'}>
-			<a data-language="en" href={alternatives?.en ?? Astro.url.pathname} lang="en" hreflang={alternatives ? 'en' : undefined} aria-current={locale === 'en' ? 'page' : undefined}>English</a>
-			<a data-language="es" href={alternatives?.es ?? Astro.url.pathname} lang="es" hreflang={alternatives ? 'es' : undefined} aria-current={locale === 'es' ? 'page' : undefined}>Español</a>
+			<a data-language="en" href={alternatives?.en ?? Astro.url.pathname} lang="en" hreflang={alternatives ? 'en' : undefined} aria-current={locale === 'en' ? 'true' : undefined}>English</a>
+			<a data-language="es" href={alternatives?.es ?? Astro.url.pathname} lang="es" hreflang={alternatives ? 'es' : undefined} aria-current={locale === 'es' ? 'true' : undefined}>Español</a>
 		</div>
 		<div class="social-links">
 			<a href="https://mastodon.social/@jairo_ipial" target="_blank" rel="noopener noreferrer">
@@ -139,7 +139,7 @@ import HeaderLink from './HeaderLink.astro';
 		display: flex;
 	}
 	.language-links { display: flex; flex-wrap: wrap; gap: 4px; font-size: .85rem; }
-	.language-links [aria-current="page"] { font-weight: 700; text-decoration: underline; }
+	.language-links [aria-current="true"] { font-weight: 700; text-decoration: underline; }
 	.internal-links { display: flex; flex-wrap: wrap; }
 	h2 { min-width: 0; }
 	@media (max-width: 720px) {
