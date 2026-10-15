@@ -240,3 +240,22 @@ npm run validate
 ```
 
 Start the blog before `validate`; it does not manage the server. Coverage is an additional report and runs separately with `npm run test:coverage`. Run `npm run build` separately before publishing to verify production generation.
+
+`i18n.spec.ts` covers English/Spanish switching for Home, About, and CV, localized navigation, language metadata, canonical/alternate links, mobile overflow, Spanish CV content, sitemap inclusion, and the absence of Spanish blog routes. Run against a built preview to include sitemap checks:
+
+```bash
+TEST_BASE_URL=http://localhost:4322 npm run test:mobile -- --grep 'Spanish translation|Blog stays'
+```
+
+### Internationalization suite
+
+Run all English/Spanish tests against the built preview (the sitemap is generated only during a build):
+
+```bash
+npm run build
+npm run preview -- --port 4322
+TEST_BASE_URL=http://localhost:4322 npm run test:i18n
+npx astro preview stop
+```
+
+The suite runs at 320px and 390px widths. It covers translated Home/About/CV content, language switching, localized navigation and active links, canonical and reciprocal hreflang URLs, social metadata, sitemap entries, English-only blog routes, saved preferences across blog navigation and reloads, explicit English URL selection, disabled JavaScript, blocked localStorage, and bilingual 404 recovery. It uses an existing server and does not start or stop one itself.

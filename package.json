@@ -17,7 +17,8 @@
     "test:coverage": "node tests/coverage.mjs",
     "validate": "npm run check && npm run check:types && npm run test:mobile",
     "deploy": "npm run build && wrangler deploy",
-    "deploy:check": "npm run build && wrangler deploy --dry-run"
+    "deploy:check": "npm run build && wrangler deploy --dry-run",
+    "test:i18n": "playwright test --config tests/playwright.config.ts i18n.spec.ts"
   },
   "dependencies": {
     "@astrojs/mdx": "^8.0.3",

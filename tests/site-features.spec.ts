@@ -178,7 +178,7 @@ test('About: personal layout omits article metadata', async ({ page }, info) => 
   const image = page.locator('main img');
   await expect(image).toBeVisible();
   await expect.poll(() => image.evaluate(img => (img as HTMLImageElement).naturalWidth)).toBeGreaterThan(0);
-  await expect(page.getByRole('link', { name: 'Explore my professional experience' })).toHaveAttribute('href', '/cv');
+  await expect(page.getByRole('link', { name: 'Explore my professional experience' })).toHaveAttribute('href', '/cv/');
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(page.viewportSize()!.width + 1);
   const path = info.outputPath('about.png');
   await page.screenshot({ path, fullPage: true });
