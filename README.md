@@ -41,6 +41,8 @@ The CV page lives at `/cv`.
 
 ## Deployment strategy
 
+Follow the [Oracle VM and Podman deployment guide](deploy/oracle/README.md) for account setup, networking, HTTPS, publishing, and rollback. Deployment configuration lives in `deploy/`.
+
 The planned deployment uses an **Oracle Cloud Always Free eligible VM** with a **Podman-managed static web server**.
 
 Astro builds run locally in WSL. Publishing uploads the generated site as a batch, without rebuilding or uploading the web-server container image for content changes. Releases will be activated after validation, with the previous version retained for rollback.

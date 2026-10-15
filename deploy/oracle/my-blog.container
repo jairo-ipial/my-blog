@@ -1,0 +1,21 @@
+[Unit]
+Description=Jairo Ipial static blog with Caddy HTTPS
+Wants=network-online.target
+After=network-online.target
+
+[Container]
+Image=docker.io/library/caddy:2-alpine
+ContainerName=my-blog
+PublishPort=80:80
+PublishPort=443:443
+Volume=/srv/my-blog:/srv/site:ro
+Volume=/etc/my-blog/Caddyfile:/etc/caddy/Caddyfile:ro
+Volume=my-blog-caddy-data:/data
+Volume=my-blog-caddy-config:/config
+
+[Service]
+Restart=always
+TimeoutStartSec=300
+
+[Install]
+WantedBy=multi-user.target

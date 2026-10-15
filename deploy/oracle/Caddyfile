@@ -1,0 +1,13 @@
+jairo-ipial.duckdns.org {
+  root * /srv/site/current
+  encode zstd gzip
+  file_server
+
+  handle_errors {
+    @notFound expression {err.status_code} == 404
+    handle @notFound {
+      rewrite * /404.html
+      file_server
+    }
+  }
+}
