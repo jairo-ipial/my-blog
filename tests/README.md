@@ -1,6 +1,6 @@
 # Mobile browser tests
 
-These tests reproduce the mobile checks for Jairo Ipial’s blog using Playwright and Chromium. They run each scenario at **320×844** and **390×844**, with touch and mobile emulation enabled: **26 test cases** in total.
+These tests reproduce the mobile checks for Jairo Ipial’s blog using Playwright and Chromium. They run each scenario at **320×844** and **390×844**, with touch and mobile emulation enabled.
 
 ## Files
 
@@ -138,22 +138,42 @@ Check these details manually:
 
 Astro’s development toolbar may appear in screenshots. It is development UI and is absent from production builds.
 
-## 6. Optional production check
+## 6. Test the local production build
 
-Build the site and start a preview on an unused port:
+Run these commands from the project root, after installing dependencies and Chromium as described above:
 
 ```bash
 npm run build
-npm run preview -- --port 4323
+npm run preview -- --port 4322
 ```
 
-Keep preview running, then run tests from another terminal:
+Confirm the preview address printed by Astro. Run the full suite against that address:
 
 ```bash
-TEST_BASE_URL=http://localhost:4323 npm run test:mobile
+TEST_BASE_URL=http://localhost:4322 npm run test:mobile
 ```
 
-In PowerShell, set `TEST_BASE_URL` as shown in step 4. Stop the foreground preview with Ctrl+C when finished.
+If preview occupies the terminal, run the test command in another terminal. In PowerShell, set `TEST_BASE_URL` as shown in step 4.
+
+The production preview runs the sitemap checks that are explicitly skipped on the development server. A missing sitemap in production fails the test. This checks the latest local build; it does not publish anything.
+
+Stop the preview afterward:
+
+```bash
+npx astro preview stop
+```
+
+## 7. Test the deployed Cloudflare site
+
+After deploying, run the same full suite against the public address:
+
+```bash
+TEST_BASE_URL=https://blog.jairo-ipial.workers.dev npm run test:mobile
+```
+
+This also checks Cloudflare’s routing and responses. Use a checkout matching the deployed version: tests compare some metadata against local source files, so unpublished content changes can cause mismatches.
+
+Review results with `npm run test:mobile:report`. No local server is needed when testing the deployed site.
 
 ## Troubleshooting and scope
 
@@ -212,7 +232,7 @@ JavaScript coverage reports executed functions versus collected functions. CSS c
 For a cleaner report, run against the production preview using `TEST_BASE_URL` as explained above. The same variable works for coverage:
 
 ```bash
-TEST_BASE_URL=http://localhost:4323 npm run test:coverage
+TEST_BASE_URL=http://localhost:4322 npm run test:coverage
 ```
 
 Generated coverage files are ignored by Git. Installing the browser under a custom path requires the same `PLAYWRIGHT_BROWSERS_PATH` when running tests and coverage.
@@ -233,7 +253,7 @@ npm run check:types
 
 Both commands must finish with exit code 0. Errors include file paths and line numbers to help locate the problem. Astro hints/warnings are reported separately; review them even when the exit code succeeds. These commands are type analysis, not a formatting linter, vulnerability scanner, or runtime test suite. JavaScript files are not fully type-checked unless `checkJs` is enabled; browser coverage scripts are validated by running them.
 
-To run static analysis followed by all 22 browser tests:
+To run static analysis followed by all browser tests:
 
 ```bash
 npm run validate
@@ -244,7 +264,7 @@ Start the blog before `validate`; it does not manage the server. Coverage is an 
 `i18n.spec.ts` covers English/Spanish switching for Home, About, and CV, localized navigation, language metadata, canonical/alternate links, mobile overflow, Spanish CV content, sitemap inclusion, and the absence of Spanish blog routes. Run against a built preview to include sitemap checks:
 
 ```bash
-TEST_BASE_URL=http://localhost:4322 npm run test:mobile -- --grep 'Spanish translation|Blog stays'
+TEST_BASE_URL=http://localhost:4322 npm run test:mobile -- --grep 'Spanish translation|Blog stays|production sitemap'
 ```
 
 ### Internationalization suite
@@ -259,3 +279,5 @@ npx astro preview stop
 ```
 
 The suite runs at 320px and 390px widths. It covers translated Home/About/CV content, language switching, localized navigation and active links, canonical and reciprocal hreflang URLs, social metadata, sitemap entries, English-only blog routes, saved preferences across blog navigation and reloads, explicit English URL selection, disabled JavaScript, blocked localStorage, and bilingual 404 recovery. It uses an existing server and does not start or stop one itself.
+
+On the Astro development server, the production sitemap test is explicitly skipped because the sitemap integration generates XML only during builds. Run against a built preview to execute that check; a missing sitemap on a production preview still fails. The blocked-storage test denies reads and writes of `preferred-language`, leaving development-tool storage unaffected.
