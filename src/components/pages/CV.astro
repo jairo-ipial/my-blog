@@ -1,0 +1,174 @@
+---
+import { localeFromPath, translator } from '../../i18n/utils';
+const locale = localeFromPath(Astro.url.pathname);
+const t = translator(locale);
+import BaseHead from '../BaseHead.astro';
+import Header from '../Header.astro';
+import Footer from '../Footer.astro';
+import ContentSection from '../ContentSection.astro';
+
+const experience = [
+  { company: 'StoneX Group Inc.', role: 'Senior Staff Engineer', dates: 'Mar 2025 – Present', details: [
+    'Lead the global payments production support team, combining technical leadership, people management, hiring, and sprint planning.',
+    'Provide L2–L3 support for distributed payments applications, covering deployments, Kubernetes troubleshooting, code reviews, testing, and database fixes.',
+    'Develop cloud-native features with Java 21/25, .NET, event-driven systems, and Azure services.',
+    'Built an MCP application using Claude to help diagnose payment tickets with production data, reducing team response time from six hours to three hours.',
+    'Contributed to a 15% reduction in incidents.'
+  ] },
+  { company: 'EPAM Systems', role: 'Senior Software Engineer', dates: 'Dec 2024 – Mar 2025', details: ['Developed features for Bancolombia’s Bre-B implementation, focusing on vault integration for payment keys in an event-driven Java 21 application.'] },
+  { company: 'Mercado Libre', role: 'Senior Software Engineer', dates: 'May 2024 – Nov 2024', details: ['Developed Java 21 and Spring Boot features for a highly available cache service using AWS Redis.', 'Improved APIs and service communication, supported production incidents, and mentored junior developers.'] },
+  { company: 'ScotiaGBS / Scotiabank Colpatria', role: 'Software Engineer Specialist', dates: 'Jun 2023 – Feb 2024', details: ['Provided technical leadership and production support for enterprise content applications using Java, .NET, Azure, GCP, and Linux.', 'Maintained REST and SOAP APIs, coordinated with stakeholders, and led test automation with Playwright and Cucumber.'] },
+  { company: 'Rooftop.dev', role: 'Senior Java Developer', dates: 'Mar 2023 – Jun 2023', details: ['Developed microservices for international payments at Clara using Maven, Docker, and PostgreSQL.'] },
+  { company: 'Datavail', role: 'Senior Java Product Developer', dates: 'Jul 2022 – Jan 2023', details: ['Led development within the legacy Java TechBoost framework, standardizing delivery practices and maintaining JVM security updates.', 'Expanded database monitoring capabilities and designed support for multiple MySQL instances.'] },
+  { company: 'BairesDev', role: 'Senior Java Developer', dates: 'Jun 2021 – Jul 2022', details: ['Developed APIs and features for Roku subscription management and payment processing for the SiriusXM client, using Java and Gradle.'] },
+  { company: 'Globant', role: 'Senior Java Developer / Senior DevOps Engineer', dates: 'Aug 2017 – Jun 2021', details: ['P.volve: deployed and configured Unleash environments using Terraform and AWS.', 'SmileDirectClub: automated AWS infrastructure, Vault and Consul deployments, CI/CD pipelines, and .NET Core integrations.', 'The Walt Disney Company: contributed to Ruby on Rails, React, and Java application development.', 'Royal Caribbean: led Jenkins pipeline development, established CI/CD standards, integrated quality checks, and mentored developers.', 'Southwest Airlines: implemented Kafka integrations and AWS Lambda processing for Kinesis messages.'] },
+  { company: 'Productora de Software (PSL)', role: 'Development Analyst', dates: 'Jan 2016 – Aug 2017', details: ['Designed and developed Java and front-end solutions for prison management software.'] },
+  { company: 'A.T.H. A Toda Hora S.A.', role: 'Development Analyst', dates: 'Jun 2015 – Jan 2016', details: ['Developed Java portlet modules for the AV Villas banking portal and led junior developers during its migration.'] },
+  { company: 'Stefanini', role: 'Junior Developer II', dates: 'Nov 2014 – Mar 2015', details: ['Designed and implemented projects for Claro Colombia.'] },
+  { company: 'El Tiempo Publishing House', role: 'Support Engineer', dates: 'Nov 2013 – May 2014', details: ['Developed carroya.com web applications using JEE, Spring, and JavaScript.'] },
+  { company: 'SCI Software', role: 'Developer', dates: 'Nov 2012 – Sep 2013', details: ['Developed web applications and implemented security mechanisms for carroya.com.'] },
+  { company: 'Lanka Group Colombia', role: 'Junior Consultant', dates: 'Jul 2012 – Nov 2012', details: ['Improved CRM systems for MAPFRE Brazil.'] },
+];
+const skills = [
+  ['Engineering', 'Java, C#, .NET, Python, Ruby, Groovy, JavaScript, TypeScript, Kotlin, C/C++, PL/SQL'],
+  ['Frameworks', 'Spring, React, Vaadin, Ruby on Rails, jQuery, BitcoinJ, web3j'],
+  ['Cloud & infrastructure', 'AWS, Azure, GCP, Kubernetes, OpenShift, Docker, Terraform'],
+  ['Delivery & automation', 'Jenkins, Git, SVN, Artifactory, SonarQube, Octopus Deploy, Vault, Consul, Playwright, Orkes Conductor'],
+  ['Data', 'MySQL, Oracle, PostgreSQL, MongoDB, Redis, SQL Server'],
+  ['Observability & support', 'Dynatrace, ServiceNow, Datadog, Opsgenie, Wrangler, SolarWinds, PoliteMail'],
+  ['AI & collaboration', 'GPT, Claude Code, GitHub Copilot, Grok, MCP tooling, Agile, Scrum, Kanban'],
+];
+---
+
+<!doctype html>
+<html lang={locale}>
+  <head>
+    <BaseHead title={t("Jairo Ipial | Curriculum Vitae")} description={t("Engineering leadership, cloud systems, and payments. Explore Jairo Ipial’s professional experience and technical expertise.")} />
+  </head>
+  <body>
+    <Header />
+    <main id="top">
+      <section class="intro" aria-labelledby="cv-title">
+        <p class="eyebrow">{t("Curriculum vitae · Bogotá, Colombia")}</p>
+        <h1 id="cv-title">Jairo Ipial</h1>
+        <p class="headline">{t("Engineering leadership.")}<br />{t("Reliable systems. Global payments.")}</p>
+        <p class="summary">{t("Senior engineer with 13+ years of experience in software development, DevOps, and cloud computing. I lead technical teams and build scalable solutions across finance, banking, and e-commerce, with a focus on Java, .NET, AWS, and Azure.")}</p>
+        <div class="actions">
+          <a class="button" href="mailto:jairo.ipial@gmail.com">{t("Get in touch")} <span aria-hidden="true">↗</span></a>
+          <button class="button button--secondary" type="button" data-print-cv>{t("Print / save as PDF")}</button>
+        </div>
+      </section>
+
+      <nav class="section-nav" aria-label={t("CV sections")}>
+        <a href="#experience-title">{t("Experience")}</a>
+        <a href="#skills-title">{t("Expertise")}</a>
+        <a href="#education-title">{t("Education")}</a>
+      </nav>
+
+      <ContentSection id="experience-title" title={t("Professional experience")} backToTop="#top">
+        <div class="experience">
+          {experience.map((job) => (
+            <article class="job">
+              <p class="dates">{locale === 'es' ? job.dates.replace('Present', 'Actualidad').replace('Jan', 'Ene').replace('Apr', 'Abr').replace('Aug', 'Ago').replace('Dec', 'Dic') : job.dates}</p>
+              <div>
+                <h3>{job.company}</h3>
+                <p class="role">{t(job.role)}</p>
+                <ul>{job.details.map((detail) => <li>{t(detail)}</li>)}</ul>
+              </div>
+            </article>
+          ))}
+        </div>
+      </ContentSection>
+
+      <ContentSection id="skills-title" title={t("Technical expertise")} backToTop="#top">
+        <dl class="skills">{skills.map(([label, value]) => <div><dt>{t(label)}</dt><dd>{value}</dd></div>)}</dl>
+      </ContentSection>
+
+      <div class="closing">
+        <ContentSection id="education-title" title={t("Education")} backToTop="#top">
+          <h3>{t("Pontifical Xavierian University")}</h3>
+          <p>{t("BS, Systems Engineering · Bogotá, Colombia")}</p>
+        </ContentSection>
+        <ContentSection id="languages-title" title={t("Languages & availability")} backToTop="#top">
+          <p>{t("Spanish — native")}<br />{t("English — advanced")}<br />{t("French — intermediate")}</p>
+          <p>{t("Available for remote and hybrid opportunities. Willing to relocate and travel.")}</p>
+        </ContentSection>
+      </div>
+      <p class="print-contact">{t("Contact:")} <a href="mailto:jairo.ipial@gmail.com">jairo.ipial@gmail.com</a></p>
+    </main>
+    <Footer />
+  </body>
+</html>
+
+<script>
+  document.querySelector<HTMLButtonElement>('[data-print-cv]')?.addEventListener('click', () => window.print());
+</script>
+
+<style>
+  main {
+    box-sizing: border-box;
+    width: min(960px, calc(100% - 40px));
+    max-width: none;
+    margin: 0 auto;
+    padding: 64px 0;
+  }
+  .eyebrow {
+    font-size: .78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .12em;
+    color: rgb(var(--gray));
+  }
+  h1 {
+    font-size: clamp(2.8rem, 8vw, 5rem);
+    line-height: 1.05;
+    margin: 18px 0;
+    letter-spacing: -.045em;
+  }
+  .headline { font-size: clamp(1.35rem, 4vw, 2rem); line-height: 1.35; font-weight: 600; }
+  .summary { max-width: 720px; color: rgb(var(--gray-dark)); line-height: 1.8; }
+  .actions { display: flex; flex-wrap: wrap; gap: 14px; align-items: center; margin-top: 28px; }
+  .section-nav { display: flex; flex-wrap: wrap; gap: 12px 28px; margin-top: 36px; font-size: .9rem; }
+  .section-nav a { text-underline-offset: 5px; }
+  h3 { font-size: 1.15rem; margin: 0 0 5px; }
+  .job {
+    display: grid;
+    grid-template-columns: 180px minmax(0, 1fr);
+    gap: 24px;
+    padding: 28px 0;
+    border-bottom: 1px solid rgb(var(--gray-light));
+  }
+  .job:first-child { padding-top: 0; }
+  .job:last-child { border-bottom: none; padding-bottom: 0; }
+  .dates { margin: 0; font-size: .85rem; color: rgb(var(--gray)); }
+  .role { margin: 0 0 14px; font-weight: 600; }
+  ul { padding-left: 20px; margin: 0; }
+  li { margin-bottom: 9px; line-height: 1.65; }
+  li:last-child { margin-bottom: 0; }
+  li::marker { color: var(--accent); }
+  .skills { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 28px 36px; margin: 0; }
+  dt { font-weight: 700; margin-bottom: 7px; }
+  dd { margin: 0; line-height: 1.7; }
+  .closing { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 36px; }
+  .closing p { line-height: 1.7; }
+  .print-contact { display: none; }
+  @media (max-width: 640px) {
+    main { padding: 36px 0; }
+    .job { grid-template-columns: 1fr; gap: 8px; }
+    .skills, .closing { grid-template-columns: 1fr; }
+    .closing { gap: 0; }
+  }
+  @media print {
+    :global(body) { background: white; color: black; font-size: 10pt; }
+    :global(header), :global(footer), .actions, .section-nav { display: none !important; }
+    main { width: 100%; padding: 0; }
+    h1 { font-size: 28pt; }
+    .headline { font-size: 14pt; }
+    .summary { max-width: none; }
+    .job { break-inside: avoid; grid-template-columns: 110px minmax(0, 1fr); gap: 18px; padding: 14px 0; }
+    h3, dt { break-after: avoid; }
+    .skills, .closing { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .print-contact { display: block; margin-top: 24px; }
+    .print-contact a { color: inherit; text-decoration: none; }
+  }
+</style>

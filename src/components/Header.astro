@@ -1,22 +1,30 @@
 ---
+import { localeFromPath, translator, localizedPath, translatedPaths } from '../i18n/utils';
+const locale = localeFromPath(Astro.url.pathname);
+const t = translator(locale);
+const alternatives = translatedPaths(Astro.url.pathname);
 import { SITE_TITLE } from '../consts';
 import HeaderLink from './HeaderLink.astro';
 ---
 
-<header>
-	<nav aria-label="Main navigation">
+<header data-translated-page={Boolean(alternatives)}>
+	<nav aria-label={t("Main navigation")}>
 		<h2>
-			<a href="/">{SITE_TITLE}</a>
+			<a data-localized-path="/" href={localizedPath("/", locale)}>{SITE_TITLE}</a>
 		</h2>
 		<div class="internal-links">
-			<HeaderLink href="/">Home</HeaderLink>
-			<HeaderLink href="/blog">Blog</HeaderLink>
-			<HeaderLink href="/about">About</HeaderLink>
-			<HeaderLink href="/cv">CV</HeaderLink>
+			<HeaderLink data-localized-path="/" href={localizedPath("/", locale)}>{t("Home")}</HeaderLink>
+			<HeaderLink href="/blog/">Blog</HeaderLink>
+			<HeaderLink data-localized-path="/about/" href={localizedPath("/about/", locale)}>{t("About")}</HeaderLink>
+			<HeaderLink data-localized-path="/cv/" href={localizedPath("/cv/", locale)}>CV</HeaderLink>
+		</div>
+		<div class="language-links" role="group" aria-label={locale === 'es' ? 'Idioma' : 'Language'}>
+			<a data-language="en" href={alternatives?.en ?? Astro.url.pathname} lang="en" hreflang={alternatives ? 'en' : undefined} aria-current={locale === 'en' ? 'page' : undefined}>English</a>
+			<a data-language="es" href={alternatives?.es ?? Astro.url.pathname} lang="es" hreflang={alternatives ? 'es' : undefined} aria-current={locale === 'es' ? 'page' : undefined}>Español</a>
 		</div>
 		<div class="social-links">
 			<a href="https://mastodon.social/@jairo_ipial" target="_blank" rel="noopener noreferrer">
-				<span class="sr-only">Follow me on Mastodon</span>
+				<span class="sr-only">{t("Follow me on Mastodon")}</span>
 				<svg viewBox="0 0 16 16" aria-hidden="true" width="32" height="32">
 					<path
 						fill="currentColor"
@@ -25,7 +33,7 @@ import HeaderLink from './HeaderLink.astro';
 				</svg>
 			</a>
 			<a href="https://x.com/jairo_ipial" target="_blank" rel="noopener noreferrer">
-				<span class="sr-only">Follow me x</span>
+				<span class="sr-only">{t("Follow me x")}</span>
 				<svg viewBox="0 0 16 16" aria-hidden="true" width="32" height="32">
 					<path
 						fill="currentColor"
@@ -34,7 +42,7 @@ import HeaderLink from './HeaderLink.astro';
 				</svg>
 			</a>
 			<a href="https://github.com/jairo-ipial" target="_blank" rel="noopener noreferrer">
-				<span class="sr-only">Visit my GitHub profile</span>
+				<span class="sr-only">{t("Visit my GitHub profile")}</span>
 				<svg viewBox="0 0 16 16" aria-hidden="true" width="32" height="32">
 					<path
 						fill="currentColor"
@@ -45,6 +53,49 @@ import HeaderLink from './HeaderLink.astro';
 		</div>
 	</nav>
 </header>
+<script>
+	import { localeFromPath, localizedPath } from '../i18n/utils';
+
+	const header = document.querySelector<HTMLElement>('header[data-translated-page]');
+	if (header) {
+		const translated = header.dataset.translatedPage === 'true';
+		const key = 'preferred-language';
+		let locale = localeFromPath(window.location.pathname);
+		try {
+			const saved = localStorage.getItem(key);
+			if (!translated && (saved === 'en' || saved === 'es')) locale = saved;
+		} catch { /* Navigation still works when browser storage is unavailable. */ }
+
+		function applyPreference(language: 'en' | 'es') {
+			try { localStorage.setItem(key, language); } catch { /* Storage is optional. */ }
+			const labels = language === 'es'
+				? { '/': 'Inicio', '/about/': 'Sobre mí', '/cv/': 'CV' }
+				: { '/': 'Home', '/about/': 'About', '/cv/': 'CV' };
+			header!.querySelectorAll<HTMLAnchorElement>('[data-localized-path]').forEach(link => {
+				const path = link.dataset.localizedPath as keyof typeof labels;
+				link.href = localizedPath(path, language);
+				if (link.closest('.internal-links')) link.textContent = labels[path];
+			});
+			const nav = header!.querySelector('nav');
+			nav?.setAttribute('aria-label', language === 'es' ? 'Navegación principal' : 'Main navigation');
+			const selector = header!.querySelector('.language-links');
+			selector?.setAttribute('aria-label', language === 'es' ? 'Idioma' : 'Language');
+			selector?.querySelectorAll<HTMLAnchorElement>('[data-language]').forEach(link => {
+				if (link.dataset.language === language) link.setAttribute('aria-current', 'true');
+				else link.removeAttribute('aria-current');
+			});
+		}
+
+		applyPreference(locale);
+		header.querySelectorAll<HTMLAnchorElement>('[data-language]').forEach(link => {
+			link.addEventListener('click', event => {
+				const language = link.dataset.language === 'es' ? 'es' : 'en';
+				if (!translated) event.preventDefault();
+				applyPreference(language);
+			});
+		});
+	}
+</script>
 <style>
 	header {
 		margin: 0;
@@ -87,6 +138,8 @@ import HeaderLink from './HeaderLink.astro';
 	.social-links a {
 		display: flex;
 	}
+	.language-links { display: flex; flex-wrap: wrap; gap: 4px; font-size: .85rem; }
+	.language-links [aria-current="page"] { font-weight: 700; text-decoration: underline; }
 	.internal-links { display: flex; flex-wrap: wrap; }
 	h2 { min-width: 0; }
 	@media (max-width: 720px) {

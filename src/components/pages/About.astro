@@ -1,0 +1,24 @@
+---
+import { localeFromPath, translator, localizedPath } from '../../i18n/utils';
+const locale = localeFromPath(Astro.url.pathname);
+const t = translator(locale);
+import AboutHeroImage from '../../assets/jairo-ipial.avif';
+import Layout from '../../layouts/Page.astro';
+---
+
+<Layout
+	title={t("About Me")}
+	description={t("Learn about Jairo Ipial, his engineering experience, and interests.")}
+	heroImage={AboutHeroImage}
+	imageAlt="Jairo Ipial"
+	profile
+>
+	<h2>{t("Hi, I’m Jairo")}</h2>
+	<p>{t("I’m a software engineer based in Bogotá, Colombia.")}</p>
+	<p>{t("My work focuses on engineering leadership, cloud systems, and global payments.")}</p>
+	<p>{t("I enjoy building things, understanding how they work, and finding practical ways to solve problems. This blog is where I share what I learn along the way, from technical decisions and project walkthroughs to mistakes that helped me improve.")}</p>
+	<p>{t("I write about the tools I use, the ideas I explore, and the reasoning behind my choices. My goal is to make each article useful, whether you’re working through a similar challenge or looking for a different perspective.")}</p>
+	<p>{t("Here you’ll find my writing and projects, along with an honest account of what worked, what didn’t, and what I’d try next.")}</p>
+
+	<p><a href={localizedPath("/cv/", locale)}>{t("Explore my professional experience")}</a></p>
+</Layout>

@@ -1,4 +1,7 @@
 ---
+import { localeFromPath, translator } from '../i18n/utils';
+const locale = localeFromPath(Astro.url.pathname);
+const t = translator(locale);
 interface Props {
   id: string;
   title: string;
@@ -11,7 +14,7 @@ const { id, title, backToTop } = Astro.props;
 <section aria-labelledby={id}>
   <h2 id={id}>{title}</h2>
   <slot />
-  {backToTop && <a class="back-to-top" href={backToTop}>Back to top <span aria-hidden="true">↑</span></a>}
+  {backToTop && <a class="back-to-top" href={backToTop}>{t("Back to top")} <span aria-hidden="true">↑</span></a>}
 </section>
 
 <style>
