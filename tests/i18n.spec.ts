@@ -30,6 +30,12 @@ test('Blog stays in English without Spanish alternates', async ({ page, request 
     await expect(page.locator('link[hreflang="es"]')).toHaveCount(0);
   }
   expect((await request.get('/es/blog/')).status()).toBe(404);
+});
+
+test('production sitemap includes translated pages without Spanish blog URLs', async ({ page, request }) => {
+  await page.goto('/');
+  const devServer = await page.locator('script[src*="/@vite/client"]').count() > 0;
+  test.skip(devServer, 'Astro generates the sitemap during builds; run against a production preview.');
   const sitemap = await request.get('/sitemap-0.xml');
   expect(sitemap.status()).toBe(200);
   const xml = await sitemap.text();
@@ -126,7 +132,17 @@ test('navigation remains usable when browser storage is blocked', async ({ page 
   const errors: string[] = [];
   page.on('pageerror', error => errors.push(error.message));
   await page.addInitScript(() => {
-    Object.defineProperty(window, 'localStorage', { get() { throw new DOMException('Blocked', 'SecurityError'); } });
+    // Block the app's storage operations while leaving Astro dev-tool storage usable.
+    const getItem = Storage.prototype.getItem;
+    const setItem = Storage.prototype.setItem;
+    Storage.prototype.getItem = function (key: string) {
+      if (key === 'preferred-language') throw new DOMException('Blocked', 'SecurityError');
+      return getItem.call(this, key);
+    };
+    Storage.prototype.setItem = function (key: string, value: string) {
+      if (key === 'preferred-language') throw new DOMException('Blocked', 'SecurityError');
+      return setItem.call(this, key, value);
+    };
   });
   await page.goto('/es/');
   await page.locator('header').getByRole('link', { name: 'Sobre mí', exact: true }).click();
