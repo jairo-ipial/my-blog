@@ -102,16 +102,23 @@ test('sharing: article metadata and preview images are correct', async ({ page, 
 });
 
 // SUMMARY: archived starter posts are absent from public listings, tag pages,
-// and RSS; their old URLs and now-unused tag URLs return 404. The real article
-// remains discoverable on the homepage and blog listing.
+// and RSS; removed post URLs and unused tags return 404. The RunPod article
+// remains discoverable, while the active Astro tag lists the new Astro articles.
 test('content: archived templates stay out of the public blog', async ({ page, request }) => {
   for (const path of ['/', '/blog/', '/blog/tags/ai/']) {
     expect((await page.goto(path))?.status()).toBe(200);
     await expect(page.locator(`main a[href="${articlePath}"]`).first()).toBeVisible();
     for (const slug of removedSlugs) await expect(page.locator(`a[href="/blog/${slug}/"]`)).toHaveCount(0);
   }
-  for (const path of [...removedSlugs.map(slug => `/blog/${slug}/`), '/blog/tags/astro/', '/blog/tags/markdown/', '/blog/tags/mdx/']) {
+  for (const path of [...removedSlugs.map(slug => `/blog/${slug}/`), '/blog/tags/markdown/', '/blog/tags/mdx/']) {
     expect((await request.get(path)).status(), path).toBe(404);
+  }
+  expect((await page.goto('/blog/tags/astro/'))?.status()).toBe(200);
+  for (const slug of ['astro-blog-production-seo', 'astro-english-spanish-pages', 'astro-playwright-production-tests']) {
+    await expect(page.locator(`main a[href="/blog/${slug}/"]`)).toBeVisible();
+  }
+  for (const slug of removedSlugs) {
+    await expect(page.locator(`a[href="/blog/${slug}/"]`)).toHaveCount(0);
   }
 });
 
