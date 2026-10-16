@@ -86,3 +86,42 @@ Connect the repository using Workers Builds in Cloudflare. Use the repository ro
 - https://developers.cloudflare.com/workers/static-assets/get-started/
 - https://developers.cloudflare.com/workers/static-assets/routing/advanced/html-handling/
 - https://developers.cloudflare.com/workers/configuration/routing/workers-dev/
+
+## Browser security headers
+
+`public/_headers` is copied to `dist/_headers` during the build. Cloudflare Workers Static Assets applies its rules when serving static assets:
+
+- `X-Content-Type-Options: nosniff` prevents MIME-type sniffing.
+- `X-Frame-Options: DENY` prevents other sites from embedding the pages in frames.
+- `Referrer-Policy: strict-origin-when-cross-origin` limits referrer details sent to other origins.
+- `Permissions-Policy` disables camera, microphone, and geolocation access.
+
+These policies do not add authentication or restrict search-engine crawling. CSP requires a separate review of scripts, styles, and embeds before enforcement.
+
+Astro dev and preview do not apply Cloudflare's `_headers` rules. To verify locally, first build and start Wrangler's local runtime in one terminal:
+
+```bash
+npm run build
+npx wrangler dev --port 8787
+```
+
+In another terminal:
+
+```bash
+TEST_CLOUDFLARE=1 TEST_BASE_URL=http://localhost:8787 npm run test:mobile -- security.spec.ts
+```
+
+Stop Wrangler with Ctrl+C. After deployment, verify the actual hosted responses:
+
+```bash
+curl -I https://blog.jairo-ipial.workers.dev/
+TEST_CLOUDFLARE=1 TEST_BASE_URL=https://blog.jairo-ipial.workers.dev npm run test:mobile -- security.spec.ts
+```
+
+Reference: https://developers.cloudflare.com/workers/static-assets/headers/
+
+## Google verification URL handling
+
+Cloudflare's `force-trailing-slash` HTML handling normally redirects standalone `.html` files. `public/_redirects` adds a single internal 200 rewrite from `/google9c4402f6e089b1fd.html` to the asset's normalized path. Google receives the verification text directly at its required URL; regular page trailing-slash redirects remain enabled.
+
+The Cloudflare security suite checks the verification response with redirect following disabled, plus normal page redirects and a missing-page 404. Keep the verification file and its matching rewrite together if Google issues a replacement file.

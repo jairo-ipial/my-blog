@@ -281,3 +281,15 @@ npx astro preview stop
 The suite runs at 320px and 390px widths. It covers translated Home/About/CV content, language switching, localized navigation and active links, canonical and reciprocal hreflang URLs, social metadata, sitemap entries, English-only blog routes, saved preferences across blog navigation and reloads, explicit English URL selection, disabled JavaScript, blocked localStorage, and bilingual 404 recovery. It uses an existing server and does not start or stop one itself.
 
 On the Astro development server, the production sitemap test is explicitly skipped because the sitemap integration generates XML only during builds. Run against a built preview to execute that check; a missing sitemap on a production preview still fails. The blocked-storage test denies reads and writes of `preferred-language`, leaving development-tool storage unaffected.
+
+## Cloudflare security headers
+
+`security.spec.ts` verifies security headers on representative pages, XML, robots.txt, and the Google verification file. It also checks the exact Google verification URL with redirect following disabled (GET, HEAD, and a Googlebot user agent), regular page trailing-slash redirects, sitemap XML, and custom 404 content and headers. Browser checks confirm that language switching, selected-language styling, and CSS loading still work with the security headers. It is skipped unless `TEST_CLOUDFLARE=1`, because Astro dev/preview do not apply `_headers` rules.
+
+Build the site, run `npx wrangler dev --port 8787`, and execute in another terminal:
+
+```bash
+TEST_CLOUDFLARE=1 TEST_BASE_URL=http://localhost:8787 npm run test:mobile -- security.spec.ts
+```
+
+After deployment, substitute `https://blog.jairo-ipial.workers.dev` for the local URL. See the [Cloudflare guide](../deploy/cloudflare/README.md#browser-security-headers) for the full workflow.
