@@ -293,3 +293,5 @@ TEST_CLOUDFLARE=1 TEST_BASE_URL=http://localhost:8787 npm run test:mobile -- sec
 ```
 
 After deployment, substitute `https://blog.jairo-ipial.workers.dev` for the local URL. See the [Cloudflare guide](../deploy/cloudflare/README.md#browser-security-headers) for the full workflow.
+
+The security suite also checks the report-only CSP header and visits representative pages while listening for `securitypolicyviolation` events. A harmless inline-script probe must execute and produce a report-only event, confirming that the candidate is being evaluated without enforcing it. Run this against Wrangler or the newly deployed build; older deployments without this policy will fail the CSP assertions.

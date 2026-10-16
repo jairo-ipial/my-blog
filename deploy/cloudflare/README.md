@@ -125,3 +125,17 @@ Reference: https://developers.cloudflare.com/workers/static-assets/headers/
 Cloudflare's `force-trailing-slash` HTML handling normally redirects standalone `.html` files. `public/_redirects` adds a single internal 200 rewrite from `/google9c4402f6e089b1fd.html` to the asset's normalized path. Google receives the verification text directly at its required URL; regular page trailing-slash redirects remain enabled.
 
 The Cloudflare security suite checks the verification response with redirect following disabled, plus normal page redirects and a missing-page 404. Keep the verification file and its matching rewrite together if Google issues a replacement file.
+
+## Report-only Content Security Policy
+
+`public/_headers` includes a `Content-Security-Policy-Report-Only` candidate. It allows same-origin scripts, fonts, media, and connections; same-origin/data images; and inline styles used by generated CSS and syntax highlighting. It proposes blocking objects, frames, form submissions, and unexpected script sources. Ordinary outbound links still work.
+
+This header **does not block resources**. There is no reporting endpoint configured, so no central violation collection: review the browser console and run the security tests to observe violations locally. Do not treat report-only mode as enforced XSS protection. Cloudflare may inject features such as analytics scripts; inspect the deployed site before promoting the policy to enforcement or expanding allowed sources.
+
+Astro's `vite.build.assetsInlineLimit` is set to zero so small executable scripts load as same-origin assets instead of inline code. This adds asset requests but lets browsers cache the scripts and avoids permitting arbitrary inline JavaScript. Inline styles remain allowed; tightening styles is a separate task.
+
+The CSP browser test visits representative English/Spanish pages and an article, checks for policy violations, then injects a harmless inline script. It verifies that the browser reports the violation while allowing execution, proving that report-only mode is active.
+
+After deployment, open browser Developer Tools → Console and review CSP messages while navigating the site. Run the Cloudflare security suite again. Before enforcing, resolve legitimate resource violations and test all pages, CV printing, navigation, and future embeds. An endpoint that actually accepts CSP reports is required if you want centralized visitor reporting.
+
+Reference: https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Content-Security-Policy-Report-Only
