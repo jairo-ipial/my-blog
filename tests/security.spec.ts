@@ -5,8 +5,9 @@ import { test, expect } from '@playwright/test';
 test('Cloudflare serves security headers on public pages and static files', async ({ request }) => {
   test.skip(process.env.TEST_CLOUDFLARE !== '1', 'Set TEST_CLOUDFLARE=1 against Wrangler or the deployed site.');
   const expected = {
-    'content-security-policy-report-only': "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; media-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'; frame-src 'none'; frame-ancestors 'none'",
+    'content-security-policy': "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; media-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'; frame-src 'none'; frame-ancestors 'none'",
     'x-content-type-options': 'nosniff',
+    'strict-transport-security': 'max-age=31536000',
     'x-frame-options': 'DENY',
     'referrer-policy': 'strict-origin-when-cross-origin',
     'permissions-policy': 'camera=(), microphone=(), geolocation=()',
@@ -80,7 +81,7 @@ test('security rules preserve sitemap XML and missing-page recovery', async ({ r
 });
 
 
-test('report-only CSP allows current pages and reports unexpected inline scripts', async ({ page }) => {
+test('enforced CSP allows current pages and blocks unexpected inline scripts', async ({ page }) => {
   test.skip(process.env.TEST_CLOUDFLARE !== '1', 'Set TEST_CLOUDFLARE=1 against Wrangler or the deployed site.');
   await page.addInitScript(() => {
     const violations: Array<{ directive: string; disposition: string }> = [];
@@ -92,13 +93,14 @@ test('report-only CSP allows current pages and reports unexpected inline scripts
   for (const path of ['/', '/es/', '/about/', '/cv/', '/es/cv/', '/blog/configure-runpod-instance/']) {
     const response = await page.goto(path);
     expect(response?.status()).toBe(200);
-    expect(response?.headers()['content-security-policy']).toBeUndefined();
+    expect(response?.headers()['content-security-policy']).toBeTruthy();
+    expect(response?.headers()['content-security-policy-report-only']).toBeUndefined();
     await page.evaluate(() => document.fonts.ready);
     await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
     const violations = await page.evaluate(() => (window as unknown as { cspViolations: unknown[] }).cspViolations);
     expect(violations, `Unexpected CSP violations on ${path}`).toEqual([]);
   }
-  // Prove the browser recognizes the policy, and that report-only does not block code.
+  // Prove the browser enforces the policy and prevents unexpected inline execution.
   await page.evaluate(() => {
     const probe = document.createElement('script');
     probe.textContent = 'window.cspProbeExecuted = true';
@@ -106,6 +108,6 @@ test('report-only CSP allows current pages and reports unexpected inline scripts
   });
   await expect.poll(() => page.evaluate(() => {
     const state = window as unknown as { cspViolations: Array<{ directive: string; disposition: string }>; cspProbeExecuted?: boolean };
-    return state.cspProbeExecuted && state.cspViolations.some(event => event.directive.startsWith('script-src') && event.disposition === 'report');
+    return state.cspProbeExecuted !== true && state.cspViolations.some(event => event.directive.startsWith('script-src') && event.disposition === 'enforce');
   })).toBe(true);
 });
