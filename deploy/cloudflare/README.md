@@ -1,6 +1,6 @@
 # Deploy to Cloudflare Workers
 
-This Astro project builds static HTML into `dist/`. Wrangler uploads that directory as Workers Static Assets; no Astro adapter or server code is needed.
+This Astro project builds static HTML into `dist/`. Wrangler uploads that directory as Workers Static Assets; no Worker script or Astro server adapter is required.
 
 ## Confirm the public URL first
 
@@ -96,7 +96,7 @@ Connect the repository using Workers Builds in Cloudflare. Use the repository ro
 - `Referrer-Policy: strict-origin-when-cross-origin` limits referrer details sent to other origins.
 - `Permissions-Policy` disables camera, microphone, and geolocation access.
 
-These policies do not add authentication or restrict search-engine crawling. CSP requires a separate review of scripts, styles, and embeds before enforcement.
+These policies do not add authentication or restrict search-engine crawling. The CSP is enforced; new scripts, styles, and embeds must be checked for compatibility.
 
 Astro dev and preview do not apply Cloudflare's `_headers` rules. To verify locally, first build and start Wrangler's local runtime in one terminal:
 
@@ -126,16 +126,18 @@ Cloudflare's `force-trailing-slash` HTML handling normally redirects standalone 
 
 The Cloudflare security suite checks the verification response with redirect following disabled, plus normal page redirects and a missing-page 404. Keep the verification file and its matching rewrite together if Google issues a replacement file.
 
-## Report-only Content Security Policy
+## Content Security Policy and HTTPS
 
-`public/_headers` includes a `Content-Security-Policy-Report-Only` candidate. It allows same-origin scripts, fonts, media, and connections; same-origin/data images; and inline styles used by generated CSS and syntax highlighting. It proposes blocking objects, frames, form submissions, and unexpected script sources. Ordinary outbound links still work.
+The deployment serves static assets without a Worker script. The proposed per-request HTTPS redirect Worker was removed to preserve assets-only hosting. HTTP-to-HTTPS enforcement remains an open finding; HSTS helps returning browsers after an HTTPS visit but does not replace a first-request redirect. A custom-domain redirect configuration can address this separately.
 
-This header **does not block resources**. There is no reporting endpoint configured, so no central violation collection: review the browser console and run the security tests to observe violations locally. Do not treat report-only mode as enforced XSS protection. Cloudflare may inject features such as analytics scripts; inspect the deployed site before promoting the policy to enforcement or expanding allowed sources.
+`public/_headers` sends an enforced `Content-Security-Policy`. It allows same-origin scripts, fonts, media, and connections; same-origin/data images; and inline styles needed by generated CSS and syntax highlighting. It blocks unexpected inline scripts, objects, embedded frames, and form submissions. Outbound links still work. It also sets `Strict-Transport-Security: max-age=31536000` without includeSubDomains or preload.
 
-Astro's `vite.build.assetsInlineLimit` is set to zero so small executable scripts load as same-origin assets instead of inline code. This adds asset requests but lets browsers cache the scripts and avoids permitting arbitrary inline JavaScript. Inline styles remain allowed; tightening styles is a separate task.
+Astro's `vite.build.assetsInlineLimit` remains zero so executable scripts load as same-origin assets. Inline styles remain allowed; this is not a fully strict nonce/hash-based policy. No reporting endpoint is configured. Review browser console violations, and deliberately update the policy before adding external analytics or embeds.
 
-The CSP browser test visits representative English/Spanish pages and an article, checks for policy violations, then injects a harmless inline script. It verifies that the browser reports the violation while allowing execution, proving that report-only mode is active.
+Run the security suite against Wrangler as described above. It verifies that unexpected inline scripts are blocked and emit enforcement violations. After deployment, repeat against the production URL:
 
-After deployment, open browser Developer Tools → Console and review CSP messages while navigating the site. Run the Cloudflare security suite again. Before enforcing, resolve legitimate resource violations and test all pages, CV printing, navigation, and future embeds. An endpoint that actually accepts CSP reports is required if you want centralized visitor reporting.
+```bash
+TEST_CLOUDFLARE=1 TEST_BASE_URL=https://blog.jairo-ipial.workers.dev npm run test:mobile -- security.spec.ts
+```
 
-Reference: https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Content-Security-Policy-Report-Only
+Reference: https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Content-Security-Policy
