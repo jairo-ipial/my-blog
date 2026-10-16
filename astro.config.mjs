@@ -9,6 +9,8 @@ export default defineConfig({
 	// Set SITE_URL in the build environment when using another production domain.
 	site: process.env.SITE_URL || 'https://blog.jairo-ipial.workers.dev/',
 	trailingSlash: 'ignore',
+	// Keep executable scripts external for the same-origin CSP candidate.
+	vite: { build: { assetsInlineLimit: 0 } },
 	i18n: {
 		defaultLocale: 'en',
 		locales: ['en', 'es'],
