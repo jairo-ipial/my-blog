@@ -1,0 +1,46 @@
+name: Research or spike
+description: Investigate an uncertainty before committing to an implementation.
+title: "BDL-RS-: "
+labels: []
+body:
+  - type: input
+    id: epic
+    attributes:
+      label: Related epic or story
+      placeholder: BDL-EP-05 / #5
+    validations:
+      required: true
+  - type: textarea
+    id: question
+    attributes:
+      label: Decision question
+      description: State the uncertainty this research must resolve.
+    validations:
+      required: true
+  - type: textarea
+    id: constraints
+    attributes:
+      label: Constraints
+      description: Include compatibility, security, cost, privacy, and time constraints.
+    validations:
+      required: true
+  - type: textarea
+    id: options
+    attributes:
+      label: Options to compare
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Required evidence
+      description: Define what must be measured, tested, or sourced before deciding.
+    validations:
+      required: true
+  - type: textarea
+    id: exit
+    attributes:
+      label: Exit criteria
+      description: Define the decision and follow-up artifacts this spike must produce.
+    validations:
+      required: true

@@ -1,0 +1,48 @@
+name: Bug
+description: Report behavior that contradicts an approved specification or expected result.
+title: "BDL-BUG-: "
+labels:
+  - bug
+body:
+  - type: input
+    id: requirement
+    attributes:
+      label: Related requirement
+      description: Link the affected BDL requirement or state that none exists yet.
+      placeholder: BDL-US-008 / #13
+    validations:
+      required: true
+  - type: textarea
+    id: observed
+    attributes:
+      label: Observed behavior
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Reproduction steps
+      value: |
+        1.
+        2.
+        3.
+    validations:
+      required: true
+  - type: textarea
+    id: regression
+    attributes:
+      label: Regression specification
+      description: Describe the Gherkin scenario or lower-level failing test that should reproduce the defect.
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Evidence
+      description: Add relevant URLs, logs, screenshots, or test output without secrets.

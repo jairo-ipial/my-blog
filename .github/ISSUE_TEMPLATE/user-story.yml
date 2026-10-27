@@ -1,0 +1,82 @@
+name: User story
+description: Define a user-facing or operational capability with Gherkin and test traceability.
+title: "BDL-US-: "
+labels: []
+body:
+  - type: input
+    id: requirement
+    attributes:
+      label: Requirement ID
+      description: Use the next approved stable identifier, such as BDL-US-019.
+      placeholder: BDL-US-019
+    validations:
+      required: true
+  - type: input
+    id: epic
+    attributes:
+      label: Epic
+      description: Provide the epic ID and parent issue number.
+      placeholder: BDL-EP-05 / #5
+    validations:
+      required: true
+  - type: textarea
+    id: story
+    attributes:
+      label: User story
+      description: State the role, capability, and measurable benefit.
+      value: |
+        As a [role],
+        I want [capability],
+        so that [measurable benefit].
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria
+      description: Add independently verifiable outcomes.
+      value: |
+        - [ ]
+        - [ ]
+    validations:
+      required: true
+  - type: textarea
+    id: gherkin
+    attributes:
+      label: Gherkin specification
+      description: Identify the proposed feature file, tags, and scenarios.
+      placeholder: |
+        Feature file: tests/features/BDL-US-019-example.feature
+        Tags: @BDL-US-019 @automated
+        Scenarios:
+        - Example scenario
+    validations:
+      required: true
+  - type: dropdown
+    id: test_mode
+    attributes:
+      label: Test mode
+      multiple: true
+      options:
+        - Automated
+        - Manual
+        - Observation
+    validations:
+      required: true
+  - type: textarea
+    id: test_plan
+    attributes:
+      label: Test-first plan
+      description: Describe the expected failing test, minimum implementation, and regression coverage.
+    validations:
+      required: true
+  - type: checkboxes
+    id: done
+    attributes:
+      label: Definition of Done
+      options:
+        - label: Gherkin scenarios were reviewed before implementation.
+        - label: The expected failing test was demonstrated or the manual/observation exception was documented.
+        - label: Focused tests pass.
+        - label: The regression suite passes.
+        - label: Implementation, deployment, and evidence links are attached.
